@@ -1,0 +1,9 @@
+anthropic
+chromadb
+fastapi
+uvicorn[standard]
+apscheduler
+requests
+beautifulsoup4
+sentence-transformers
+python-dotenv
