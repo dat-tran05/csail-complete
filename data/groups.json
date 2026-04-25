@@ -1,0 +1,38 @@
+[
+  {
+    "id": "hci-lab",
+    "name": "User Interface Design Group (HCI Lab)",
+    "shortName": "HCI",
+    "url": "https://hci.csail.mit.edu/",
+    "roomIds": ["32-G743"],
+    "memberIds": ["david-karger", "arvind-satyanarayan", "daniel-jackson"],
+    "color": "#e26b4a"
+  },
+  {
+    "id": "csail-pl",
+    "name": "Programming Languages & Verification",
+    "shortName": "PL",
+    "url": "https://pl.csail.mit.edu/",
+    "roomIds": ["32-G748", "32-G750"],
+    "memberIds": [],
+    "color": "#6abf6e"
+  },
+  {
+    "id": "theory",
+    "name": "Theory of Computation",
+    "shortName": "THEORY",
+    "url": "https://toc.csail.mit.edu/",
+    "roomIds": ["32-G755"],
+    "memberIds": [],
+    "color": "#a36ee2"
+  },
+  {
+    "id": "vision",
+    "name": "Vision Group",
+    "shortName": "VISION",
+    "url": "https://groups.csail.mit.edu/vision/",
+    "roomIds": ["32-G718"],
+    "memberIds": [],
+    "color": "#7fb1d4"
+  }
+]

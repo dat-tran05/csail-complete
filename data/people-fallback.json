@@ -1,0 +1,26 @@
+[
+  {
+    "id": "david-karger",
+    "name": "David Karger",
+    "affiliation": "CSAIL",
+    "groupIds": ["hci-lab"],
+    "roomIds": ["32-G743"],
+    "homepage": "https://people.csail.mit.edu/karger/"
+  },
+  {
+    "id": "arvind-satyanarayan",
+    "name": "Arvind Satyanarayan",
+    "affiliation": "CSAIL",
+    "groupIds": ["hci-lab"],
+    "roomIds": ["32-G743"],
+    "homepage": "https://www.mit.edu/~arvindsatya/"
+  },
+  {
+    "id": "daniel-jackson",
+    "name": "Daniel Jackson",
+    "affiliation": "CSAIL",
+    "groupIds": ["hci-lab"],
+    "roomIds": ["32-G743"],
+    "homepage": "https://people.csail.mit.edu/dnj/"
+  }
+]

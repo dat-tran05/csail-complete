@@ -1,0 +1,50 @@
+[
+  {
+    "id": "32-G743",
+    "number": "G743",
+    "floor": 7,
+    "polygon": [[80,80],[380,80],[380,260],[80,260]],
+    "type": "common",
+    "label": "HCI Lab common"
+  },
+  {
+    "id": "32-G748",
+    "number": "G748",
+    "floor": 7,
+    "polygon": [[400,80],[600,80],[600,180],[400,180]],
+    "type": "office",
+    "label": "PL office"
+  },
+  {
+    "id": "32-G750",
+    "number": "G750",
+    "floor": 7,
+    "polygon": [[400,200],[600,200],[600,260],[400,260]],
+    "type": "office",
+    "label": "PL office"
+  },
+  {
+    "id": "32-G755",
+    "number": "G755",
+    "floor": 7,
+    "polygon": [[620,80],[900,80],[900,260],[620,260]],
+    "type": "lab",
+    "label": "Theory of Computation"
+  },
+  {
+    "id": "32-G7-corridor",
+    "number": "G7-corridor",
+    "floor": 7,
+    "polygon": [[80,280],[900,280],[900,320],[80,320]],
+    "type": "corridor",
+    "label": "Floor 7 main corridor"
+  },
+  {
+    "id": "32-G718",
+    "number": "G718",
+    "floor": 7,
+    "polygon": [[450,340],[800,340],[800,520],[450,520]],
+    "type": "lab",
+    "label": "Vision Lab"
+  }
+]
