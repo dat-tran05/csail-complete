@@ -57,7 +57,7 @@ node_modules
 .playwright-mcp/
 
 # Neo4j snapshots
-snapshots/*.dump
+snapshots/neo4j.dump
 !snapshots/.gitkeep
 
 # Pipeline working files
