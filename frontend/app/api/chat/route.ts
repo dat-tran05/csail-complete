@@ -1,22 +1,42 @@
-import { NextResponse } from "next/server";
-import { findPeopleOnFloor, getFloorSummary } from "../../../../agents/kg/tools/floor";
+import type { MessageParam } from "@anthropic-ai/sdk/resources/messages";
+import { runAgentLoop } from "./agent";
+import { makeSseWriter } from "./sse-server";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-export async function POST(req: Request) {
-  const body = (await req.json()) as { message: string; floor?: number };
-  const msg = (body.message ?? "").toLowerCase();
-  const floorMatch = msg.match(/floor\s+(\d)/);
-  const floor = body.floor ?? (floorMatch ? parseInt(floorMatch[1]!, 10) : 7);
+export async function POST(req: Request): Promise<Response> {
+  let body: { messages?: MessageParam[]; message?: string };
+  try { body = await req.json(); } catch { body = {}; }
 
-  if (/who|people|members?/.test(msg)) {
-    const people = await findPeopleOnFloor(floor);
-    const summary = await getFloorSummary(floor);
-    const pis = people.filter((p) => p.isPI).slice(0, 5).map((p) => `${p.name} (${p.roomNumber}, ${p.groupNames[0] ?? p.title})`);
-    return NextResponse.json({
-      reply: `Floor ${floor} has ${summary.totalPeople} people across ${summary.groupCount} groups, with ${summary.paperCount} papers in the graph.\n\nNotable PIs: ${pis.join("; ")}`,
-      people, summary,
-    });
+  const messages: MessageParam[] = body.messages ?? (body.message
+    ? [{ role: "user", content: body.message }]
+    : []);
+
+  if (messages.length === 0) {
+    return new Response(JSON.stringify({ error: "no messages" }), { status: 400 });
   }
-  return NextResponse.json({ reply: "Try asking 'who's on floor 7?' or 'people on floor 7' to see live KG data.", people: [], summary: null });
+
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const writer = makeSseWriter(controller);
+      try {
+        await runAgentLoop({ messages, writer });
+      } catch (e) {
+        writer.event("error", { message: e instanceof Error ? e.message : String(e) });
+      } finally {
+        writer.event("done", {});
+        writer.close();
+      }
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache, no-transform",
+      "Connection": "keep-alive",
+      "X-Accel-Buffering": "no",
+    },
+  });
 }
