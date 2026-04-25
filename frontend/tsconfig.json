@@ -4,6 +4,7 @@
     "plugins": [{ "name": "next" }],
     "jsx": "preserve",
     "incremental": true,
+    "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
       "@shared/*": ["../shared/*"],
