@@ -10,7 +10,11 @@
     "pipeline:inspect": "bun pipeline/build.ts inspect"
   },
   "devDependencies": {
-    "typescript": "^5.5.0",
-    "@types/node": "^22.0.0"
+    "@types/node": "^22.0.0",
+    "@types/pdf-parse": "^1.1.5",
+    "cheerio": "^1.2.0",
+    "pdf-parse": "^2.4.5",
+    "pdf2json": "^4.0.3",
+    "typescript": "^5.5.0"
   }
 }
