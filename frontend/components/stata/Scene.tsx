@@ -2,6 +2,7 @@
 import { Canvas } from "@react-three/fiber";
 import { Environment } from "@react-three/drei";
 import { Suspense } from "react";
+import { PCFShadowMap } from "three";
 import { StataExterior } from "./StataExterior";
 import { Floor } from "./Floor";
 import { CameraController } from "./CameraController";
@@ -20,7 +21,7 @@ export function Scene({ rooms, groups }: SceneProps) {
 
   return (
     <Canvas
-      shadows
+      shadows={{ type: PCFShadowMap }}
       camera={{ position: [12, 8, 18], fov: 45 }}
       gl={{ antialias: true }}
       style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,#060812 0%,#101a30 35%,#1a2548 70%,#0d121f 100%)" }}
