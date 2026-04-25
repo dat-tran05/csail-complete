@@ -1,0 +1,16 @@
+{
+  "name": "csail-complete",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "cd frontend && bun dev",
+    "build": "cd frontend && bun run build",
+    "pipeline:trace": "bun pipeline/build.ts trace-floor 7",
+    "pipeline:scrape:hci": "bun pipeline/scrapers/hci-lab.ts",
+    "pipeline:inspect": "bun pipeline/build.ts inspect"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "@types/node": "^22.0.0"
+  }
+}
