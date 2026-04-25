@@ -1,7 +1,7 @@
 import { Scene } from "@/components/stata/Scene";
 import { FloorCard } from "@/components/cards/FloorCard";
 import { RoomCard } from "@/components/cards/RoomCard";
-import { ChatBar } from "@/components/chat/ChatBar";
+import { ChatPanel } from "@/components/chat/ChatPanel";
 import { GraphPlaceholderModal } from "@/components/graph/GraphPlaceholderModal";
 import { MetaLabel } from "@/components/ui/MetaLabel";
 import { GraphToggle } from "@/components/ui/GraphToggle";
@@ -22,7 +22,7 @@ export default async function DeepLinkPage({ params }: { params: Promise<{ n: st
       <GraphToggle />
       <FloorCard />
       <RoomCard />
-      <ChatBar />
+      <ChatPanel />
       <GraphPlaceholderModal />
       <DeepLinkInitializer floor={floor} roomId={roomId} />
     </main>

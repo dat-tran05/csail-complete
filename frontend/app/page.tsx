@@ -1,7 +1,7 @@
 import { Scene } from "@/components/stata/Scene";
 import { FloorCard } from "@/components/cards/FloorCard";
 import { RoomCard } from "@/components/cards/RoomCard";
-import { ChatBar } from "@/components/chat/ChatBar";
+import { ChatPanel } from "@/components/chat/ChatPanel";
 import { GraphPlaceholderModal } from "@/components/graph/GraphPlaceholderModal";
 import { MetaLabel } from "@/components/ui/MetaLabel";
 import { GraphToggle } from "@/components/ui/GraphToggle";
@@ -20,7 +20,7 @@ export default async function Home() {
       <EnterFloor7Trigger />
       <FloorCard />
       <RoomCard />
-      <ChatBar />
+      <ChatPanel />
       <GraphPlaceholderModal />
     </main>
   );
