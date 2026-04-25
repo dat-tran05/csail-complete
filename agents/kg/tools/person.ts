@@ -55,3 +55,56 @@ function toInt(v: unknown): number {
   if (v && typeof v === "object" && "toNumber" in v) return (v as { toNumber(): number }).toNumber();
   return Number(v);
 }
+
+export interface CoauthorEdge {
+  nodeId: string;
+  name: string;
+  paperCount: number;
+  firstYear?: number;
+  lastYear?: number;
+}
+
+export async function findCoauthors(nodeId: string, limit = 10): Promise<CoauthorEdge[]> {
+  return withRead(async (s) => {
+    const r = await s.run(
+      `MATCH (p:Person {nodeId: $nodeId})-[r:COAUTHORED_WITH]-(c:Person)
+       RETURN c.nodeId AS nodeId, c.name AS name, r.paperCount AS paperCount,
+              r.firstYear AS firstYear, r.lastYear AS lastYear
+       ORDER BY r.paperCount DESC
+       LIMIT toInteger($limit)`,
+      { nodeId, limit }
+    );
+    return r.records.map((rec) => ({
+      nodeId: rec.get("nodeId") as string,
+      name: rec.get("name") as string,
+      paperCount: toInt(rec.get("paperCount")),
+      firstYear: rec.get("firstYear") ? toInt(rec.get("firstYear")) : undefined,
+      lastYear: rec.get("lastYear") ? toInt(rec.get("lastYear")) : undefined,
+    }));
+  });
+}
+
+export interface NewsForPerson {
+  title: string;
+  publishedAt: string;
+  url: string;
+  excerpt?: string;
+}
+
+export async function recentNewsForPerson(nodeId: string, limit = 5): Promise<NewsForPerson[]> {
+  return withRead(async (s) => {
+    const r = await s.run(
+      `MATCH (p:Person {nodeId: $nodeId})-[:MENTIONED_IN]->(n:NewsItem)
+       RETURN n.title AS title, n.publishedAt AS publishedAt, n.url AS url, n.excerpt AS excerpt
+       ORDER BY n.publishedAt DESC
+       LIMIT toInteger($limit)`,
+      { nodeId, limit }
+    );
+    return r.records.map((rec) => ({
+      title: rec.get("title") as string,
+      publishedAt: (rec.get("publishedAt") as string) ?? "",
+      url: rec.get("url") as string,
+      excerpt: (rec.get("excerpt") as string | null) ?? undefined,
+    }));
+  });
+}
