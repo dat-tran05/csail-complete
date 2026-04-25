@@ -1,0 +1,26 @@
+CREATE CONSTRAINT person_nodeId IF NOT EXISTS
+  FOR (p:Person) REQUIRE p.nodeId IS UNIQUE;
+
+CREATE CONSTRAINT group_slug IF NOT EXISTS
+  FOR (g:Group) REQUIRE g.slug IS UNIQUE;
+
+CREATE CONSTRAINT project_slug IF NOT EXISTS
+  FOR (p:Project) REQUIRE p.slug IS UNIQUE;
+
+CREATE CONSTRAINT paper_id IF NOT EXISTS
+  FOR (p:Paper) REQUIRE p.id IS UNIQUE;
+
+CREATE CONSTRAINT news_slug IF NOT EXISTS
+  FOR (n:NewsItem) REQUIRE n.slug IS UNIQUE;
+
+CREATE CONSTRAINT room_id IF NOT EXISTS
+  FOR (r:Room) REQUIRE r.id IS UNIQUE;
+
+CREATE CONSTRAINT area_slug IF NOT EXISTS
+  FOR (a:Area) REQUIRE a.slug IS UNIQUE;
+
+CREATE INDEX person_email IF NOT EXISTS FOR (p:Person) ON (p.email);
+CREATE INDEX person_isPI IF NOT EXISTS FOR (p:Person) ON (p.isPI);
+CREATE INDEX person_name IF NOT EXISTS FOR (p:Person) ON (p.name);
+CREATE INDEX paper_year IF NOT EXISTS FOR (p:Paper) ON (p.year);
+CREATE INDEX room_floor IF NOT EXISTS FOR (r:Room) ON (r.floor)
