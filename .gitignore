@@ -55,3 +55,13 @@ dist
 node_modules
 *.tsbuildinfo
 .playwright-mcp/
+
+# Neo4j snapshots
+snapshots/*.dump
+!snapshots/.gitkeep
+
+# Pipeline working files
+data/floor-7-author-candidates.jsonl
+data/disambiguation-flags.jsonl
+data/news-orphans.jsonl
+data/s2-progress.jsonl
