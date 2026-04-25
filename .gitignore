@@ -54,3 +54,4 @@ data/stata-model.glb
 dist
 node_modules
 *.tsbuildinfo
+.playwright-mcp/
