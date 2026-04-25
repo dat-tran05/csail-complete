@@ -40,3 +40,17 @@ venv/
 
 # Logs
 *.log
+.superpowers/
+
+# Build artifacts (committed fallbacks have -sample / -fallback suffix)
+data/rooms-floor-7.json
+data/people.json
+data/embeddings.sqlite
+data/stata-model.glb
+
+# Workspace tooling
+.next
+.turbo
+dist
+node_modules
+*.tsbuildinfo
