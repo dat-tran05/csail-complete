@@ -4,19 +4,11 @@ import { Environment } from "@react-three/drei";
 import { Suspense } from "react";
 import { PCFShadowMap } from "three";
 import { StataExterior } from "./StataExterior";
-import { Floor } from "./Floor";
 import { CameraController } from "./CameraController";
 import { Floor7Ring } from "./Floor7Ring";
 import { useUI } from "@/lib/store";
-import type { Room } from "@shared/schema/room";
-import type { Group } from "@shared/schema/kg";
 
-interface SceneProps {
-  rooms: Room[];
-  groups: Group[];
-}
-
-export function Scene({ rooms, groups }: SceneProps) {
+export function Scene() {
   const view = useUI((s) => s.view);
 
   return (
@@ -24,7 +16,14 @@ export function Scene({ rooms, groups }: SceneProps) {
       shadows={{ type: PCFShadowMap }}
       camera={{ position: [12, 8, 18], fov: 45 }}
       gl={{ antialias: true }}
-      style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,#060812 0%,#101a30 35%,#1a2548 70%,#0d121f 100%)" }}
+      style={{
+        position: "absolute",
+        inset: 0,
+        background: "linear-gradient(180deg,#060812 0%,#101a30 35%,#1a2548 70%,#0d121f 100%)",
+        opacity: view === "floor" ? 0 : 1,
+        transition: "opacity 220ms ease",
+        pointerEvents: view === "floor" ? "none" : "auto",
+      }}
     >
       <Suspense fallback={null}>
         <hemisphereLight args={["#b8c8e8", "#3a2818", 0.7]} />
@@ -35,15 +34,10 @@ export function Scene({ rooms, groups }: SceneProps) {
 
         <fog attach="fog" args={["#0d121f", 45, 120]} />
 
-        {view === "exterior" && (
-          <>
-            <StataExterior />
-            <Floor7Ring />
-          </>
-        )}
-        {view === "floor" && <Floor rooms={rooms} groups={groups} level={7} />}
+        <StataExterior />
+        <Floor7Ring />
 
-        <CameraController rooms={rooms} />
+        <CameraController />
 
         <Environment preset="city" background={false} />
       </Suspense>
