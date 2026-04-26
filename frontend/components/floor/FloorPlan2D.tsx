@@ -10,9 +10,12 @@ import {
   TYPE_FILL,
   pointsAttr,
   centroid,
+  roomWidth,
+  roomHeight,
   type RoomDef,
 } from "./floor-7-rooms";
 import { RoomTooltip } from "./RoomTooltip";
+import { AmenityGlyph } from "./AmenityIcons";
 
 interface Props {
   groups: Group[];
@@ -258,6 +261,18 @@ export function FloorPlan2D({ groups, insights }: Props) {
             32-G7 · plan · 1:200 (approx)
           </text>
         </g>
+
+        {/* Architectural credit footer */}
+        <g transform="translate(50, 5)">
+          <text fontSize="0.75" textAnchor="middle" fill="rgba(244,237,224,0.32)"
+                style={{ fontFamily: "var(--font-plex-mono), monospace", letterSpacing: "0.32em", textTransform: "uppercase" }}>
+            Stata Center · Floor 7 · Gates Tower
+          </text>
+          <text x="0" y="1.5" fontSize="0.65" textAnchor="middle" fill="rgba(244,237,224,0.22)"
+                style={{ fontFamily: "var(--font-fraunces), serif", fontStyle: "italic", letterSpacing: "0.16em" }}>
+            Frank Gehry · 2004
+          </text>
+        </g>
       </svg>
     </div>
   );
@@ -328,7 +343,9 @@ function RoomCell({ room, insight, color, isSelected, isHovered, dimmed, bloomed
           opacity={0.15}
         />
       )}
-      {!isNamedSpace && (
+      {room.amenityKind ? (
+        <AmenityGlyph kind={room.amenityKind} cx={cx} cy={cy} size={Math.min(1.4, Math.max(0.9, Math.min(roomWidth(room.polygon), roomHeight(room.polygon)) / 5)) } />
+      ) : !isNamedSpace ? (
         <text
           x={cx}
           y={cy + (subLabel ? -0.6 : 0.4)}
@@ -345,7 +362,7 @@ function RoomCell({ room, insight, color, isSelected, isHovered, dimmed, bloomed
         >
           {room.number}
         </text>
-      )}
+      ) : null}
       {isNamedSpace ? (
         <text
           x={cx}
@@ -363,7 +380,7 @@ function RoomCell({ room, insight, color, isSelected, isHovered, dimmed, bloomed
         >
           {room.namedSpace}
         </text>
-      ) : subLabel ? (
+      ) : subLabel && !room.amenityKind ? (
         <text
           x={cx}
           y={cy + 1.7}

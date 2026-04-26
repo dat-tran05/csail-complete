@@ -63,8 +63,13 @@ export const FLOOR_7_ROOMS: RoomDef[] = [
   { id: "32-G778", number: "778", polygon: [[82,64],[90,64],[88,76],[82,78]], type: "office" },
   { id: "32-G780", number: "780", polygon: [[80,80],[88,76],[86,86],[78,86]], type: "office" },
 
-  // South — Vision lab + tower base
-  { id: "32-G718", number: "718", polygon: [[34,72],[60,72],[60,86],[36,86]], type: "lab", label: "Vision Lab" },
+  // South — Gates wing offices (KG-occupied: HCI/viz cluster)
+  { id: "32-G704", number: "704", polygon: [[34,72],[40,72],[40,80],[34,80]], type: "office" },
+  { id: "32-G706", number: "706", polygon: [[40,72],[46,72],[46,80],[40,80]], type: "office" },
+  { id: "32-G707", number: "707", polygon: [[46,72],[52,72],[52,80],[46,80]], type: "office" },
+  { id: "32-G708", number: "708", polygon: [[52,72],[60,72],[60,80],[52,80]], type: "office" },
+  // Vision Lab shifted south to make room for the 70X cluster above
+  { id: "32-G718", number: "718", polygon: [[34,80],[60,80],[60,86],[36,86]], type: "lab", label: "Vision Lab" },
   { id: "32-G720", number: "720", polygon: [[22,76],[34,76],[34,86],[22,86]], type: "office" },
 
   // Far south — Gates Tower lobby + amphitheater
@@ -73,7 +78,21 @@ export const FLOOR_7_ROOMS: RoomDef[] = [
   { id: "32-G788", number: "788", polygon: [[68,72],[78,72],[78,82],[68,82]], type: "office" },
   { id: "32-G790", number: "790", polygon: [[72,86],[80,84],[80,92],[68,92]], type: "lab", label: "Gates Tower lounge" },
   { id: "32-G714", number: "714", polygon: [[22,86],[34,86],[34,94],[22,94]], type: "office" },
+  { id: "32-G715", number: "715", polygon: [[46,86],[58,86],[58,92],[48,92]], type: "office" },
   { id: "32-G716", number: "716", polygon: [[34,86],[46,86],[46,94],[36,94]], type: "office" },
+
+  // Additional KG-occupied rooms — hand-traced into adjacent empty zones
+  { id: "32-G722", number: "722", polygon: [[12,18],[20,18],[20,28],[14,28]], type: "office" },
+  { id: "32-G766", number: "766", polygon: [[82,30],[90,32],[90,42],[82,42]], type: "lab" },
+  { id: "32-G776", number: "776", polygon: [[60,66],[68,66],[68,72],[60,72]], type: "lab" },
+
+  // ─── Amenities (hand-traced from MIT Stata Floor 7 plan) ───
+  { id: "32-G7-stair-nw", number: "S", polygon: [[8,40],[14,40],[14,46],[8,46]], type: "service", amenityKind: "stair" },
+  { id: "32-G7-stair-se", number: "S", polygon: [[80,82],[88,82],[88,88],[80,88]], type: "service", amenityKind: "stair" },
+  { id: "32-G7-elevator", number: "E", polygon: [[48,44],[54,44],[54,48],[48,48]], type: "service", amenityKind: "elevator" },
+  { id: "32-G7-bath-w", number: "WC", polygon: [[26,50],[32,50],[32,54],[26,54]], type: "service", amenityKind: "bathroom" },
+  { id: "32-G7-bath-e", number: "WC", polygon: [[60,50],[66,50],[66,54],[60,54]], type: "service", amenityKind: "bathroom" },
+  { id: "32-G7-kitchen", number: "K", polygon: [[40,52],[46,52],[46,56],[40,56]], type: "service", amenityKind: "kitchen" },
 ];
 
 // Stata-shaped Floor 7 outline traced from the MIT facilities plan.
@@ -117,4 +136,14 @@ export function centroid(poly: Poly): [number, number] {
   const cx = poly.reduce((a, [x]) => a + x, 0) / poly.length;
   const cy = poly.reduce((a, [, y]) => a + y, 0) / poly.length;
   return [cx, cy];
+}
+
+export function roomWidth(poly: Poly): number {
+  const xs = poly.map((p) => p[0]);
+  return Math.max(...xs) - Math.min(...xs);
+}
+
+export function roomHeight(poly: Poly): number {
+  const ys = poly.map((p) => p[1]);
+  return Math.max(...ys) - Math.min(...ys);
 }
