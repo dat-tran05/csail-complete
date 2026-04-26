@@ -12,6 +12,7 @@ import {
   centroid,
   type RoomDef,
 } from "./floor-7-rooms";
+import { RoomTooltip } from "./RoomTooltip";
 
 interface Props {
   groups: Group[];
@@ -58,6 +59,23 @@ export function FloorPlan2D({ groups, insights }: Props) {
   const [zoom, setZoom] = useState(1);
   const dragging = useRef<{ x: number; y: number } | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
+
+  // Group lookup for tooltip (curated colors+names take precedence over KG-derived)
+  const groupBySlug = useMemo(() => {
+    const m = new Map<string, { name: string; color: string | null }>();
+    insights?.groups.forEach((g) => m.set(g.slug, { name: g.name, color: g.color }));
+    groups.forEach((g, i) => {
+      if (g.color) m.set(g.id, { name: g.name, color: g.color });
+      else m.set(g.id, { name: g.name, color: DEFAULT_GROUP_COLORS[i % DEFAULT_GROUP_COLORS.length]! });
+    });
+    return m;
+  }, [groups, insights]);
+
+  const hoveredRoom = hoveredId ? FLOOR_7_ROOMS.find((r) => r.id === hoveredId) ?? null : null;
+  const hoveredInsight = hoveredId ? insightByRoom.get(hoveredId) ?? null : null;
+  const hoveredGroupSlug = hoveredInsight?.dominantGroupSlug ?? null;
+  const hoveredGroup = hoveredGroupSlug ? groupBySlug.get(hoveredGroupSlug) ?? null : null;
 
   useEffect(() => {
     if (view !== "floor") {
@@ -78,10 +96,12 @@ export function FloorPlan2D({ groups, insights }: Props) {
     (e.target as Element).setPointerCapture?.(e.pointerId);
   };
   const onPointerMove = (e: React.PointerEvent) => {
+    setMousePos({ x: e.clientX, y: e.clientY });
     if (!dragging.current) return;
     setTx(e.clientX - dragging.current.x);
     setTy(e.clientY - dragging.current.y);
   };
+  const onPointerLeave = () => { setMousePos(null); };
   const onPointerUp = () => { dragging.current = null; };
 
   return (
@@ -93,10 +113,22 @@ export function FloorPlan2D({ groups, insights }: Props) {
       onWheel={onWheel}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
+      onPointerLeave={onPointerLeave}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
     >
       <FloorElevator />
+
+      {hoveredRoom && mousePos && (
+        <RoomTooltip
+          room={hoveredRoom}
+          insight={hoveredInsight}
+          groupName={hoveredGroup?.name}
+          groupColor={hoveredGroup?.color ?? colorByRoom.get(hoveredRoom.id) ?? null}
+          mouseX={mousePos.x}
+          mouseY={mousePos.y}
+        />
+      )}
 
       <div className="absolute bottom-6 left-6 text-[9px] text-[var(--graphite-2)] font-mono smallcaps leading-relaxed tabular">
         drag · pan<br/>scroll · zoom<br/>click · select room<br/>esc · close
