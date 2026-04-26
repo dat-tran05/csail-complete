@@ -18,16 +18,11 @@ export function CameraController({ rooms }: Props) {
       return;
     }
     if (view === "floor" && !selectedRoomId) {
-      ref.current.setLookAt(0, 14, 8, 0, 7.5, 0, true);
+      ref.current.setLookAt(0, 18, 0.001, 0, 0, 0, true);
       return;
     }
     if (view === "floor" && selectedRoomId) {
-      const room = rooms.find((r) => r.id === selectedRoomId);
-      if (!room) return;
-      const cx = room.polygon.reduce((a, [x]) => a + x, 0) / room.polygon.length;
-      const cy = room.polygon.reduce((a, [, y]) => a + y, 0) / room.polygon.length;
-      void cx; void cy;
-      ref.current.setLookAt(2, 10, 6, 0, 7.5, 0, true);
+      ref.current.setLookAt(2, 14, 6, 0, 0, 0, true);
     }
   }, [view, selectedRoomId, rooms]);
 

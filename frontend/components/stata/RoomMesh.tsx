@@ -42,14 +42,12 @@ export function RoomMesh({ room, color, worldOffset, scale }: Props) {
         onPointerOut={(e) => { e.stopPropagation(); hoverRoom(null); document.body.style.cursor = "default"; }}
         onClick={(e) => { e.stopPropagation(); selectRoom(room.id); }}
       >
-        <extrudeGeometry args={[shape, { depth: 0.25, bevelEnabled: false }]} />
-        <meshStandardMaterial
+        <extrudeGeometry args={[shape, { depth: 0.18, bevelEnabled: false }]} />
+        <meshBasicMaterial
           color={baseColor}
-          emissive={baseColor}
-          emissiveIntensity={intensity}
           transparent
-          opacity={0.85}
-          roughness={0.7}
+          opacity={isSelected ? 0.85 : isHovered ? 0.7 : 0.55}
+          toneMapped={false}
         />
       </mesh>
     </group>

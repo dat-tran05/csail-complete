@@ -65,3 +65,9 @@ data/floor-7-author-candidates.jsonl
 data/disambiguation-flags.jsonl
 data/news-orphans.jsonl
 data/s2-progress.jsonl
+
+# Raw downloaded source assets (3D Warehouse GLB, rvsn DWG/PLY) — heavy, regenerable
+data/source/
+
+# Verification screenshots (live in .playwright-mcp; never in repo root)
+/stata-*.png

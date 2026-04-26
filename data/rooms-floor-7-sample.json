@@ -3,7 +3,7 @@
     "id": "32-G743",
     "number": "G743",
     "floor": 7,
-    "polygon": [[80,80],[380,80],[380,260],[80,260]],
+    "polygon": [[18,38],[44,32],[48,52],[42,62],[16,58]],
     "type": "common",
     "label": "HCI Lab common"
   },
@@ -11,7 +11,7 @@
     "id": "32-G748",
     "number": "G748",
     "floor": 7,
-    "polygon": [[400,80],[600,80],[600,180],[400,180]],
+    "polygon": [[50,32],[64,28],[66,46],[52,50]],
     "type": "office",
     "label": "PL office"
   },
@@ -19,7 +19,7 @@
     "id": "32-G750",
     "number": "G750",
     "floor": 7,
-    "polygon": [[400,200],[600,200],[600,260],[400,260]],
+    "polygon": [[52,52],[66,48],[68,62],[54,64]],
     "type": "office",
     "label": "PL office"
   },
@@ -27,15 +27,15 @@
     "id": "32-G755",
     "number": "G755",
     "floor": 7,
-    "polygon": [[620,80],[900,80],[900,260],[620,260]],
+    "polygon": [[70,30],[88,32],[90,56],[72,58]],
     "type": "lab",
     "label": "Theory of Computation"
   },
   {
     "id": "32-G7-corridor",
-    "number": "G7-corridor",
+    "number": "G7",
     "floor": 7,
-    "polygon": [[80,280],[900,280],[900,320],[80,320]],
+    "polygon": [[16,62],[90,60],[88,72],[18,74]],
     "type": "corridor",
     "label": "Floor 7 main corridor"
   },
@@ -43,7 +43,7 @@
     "id": "32-G718",
     "number": "G718",
     "floor": 7,
-    "polygon": [[450,340],[800,340],[800,520],[450,520]],
+    "polygon": [[40,76],[78,74],[80,90],[44,92]],
     "type": "lab",
     "label": "Vision Lab"
   }

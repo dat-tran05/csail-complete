@@ -27,19 +27,25 @@ export function Scene({ rooms, groups }: SceneProps) {
       style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,#060812 0%,#101a30 35%,#1a2548 70%,#0d121f 100%)" }}
     >
       <Suspense fallback={null}>
-        <ambientLight intensity={0.35} color="#7090b0" />
-        <directionalLight position={[10, 18, 6]} intensity={0.9} color="#fff5dc" castShadow />
-        <pointLight position={[-8, 6, -4]} intensity={0.6} color="#a36ee2" />
+        <hemisphereLight args={["#b8c8e8", "#3a2818", 0.7]} />
+        <ambientLight intensity={0.55} color="#a8b8d0" />
+        <directionalLight position={[10, 18, 6]} intensity={1.6} color="#fff5dc" castShadow />
+        <directionalLight position={[-12, 14, -8]} intensity={0.5} color="#9ab0d8" />
+        <pointLight position={[-8, 6, -4]} intensity={0.4} color="#a36ee2" />
 
-        <fog attach="fog" args={["#0d121f", 30, 80]} />
+        <fog attach="fog" args={["#0d121f", 45, 120]} />
 
-        <StataExterior dimmed={view === "floor"} />
-        <Floor7Ring />
+        {view === "exterior" && (
+          <>
+            <StataExterior />
+            <Floor7Ring />
+          </>
+        )}
         {view === "floor" && <Floor rooms={rooms} groups={groups} level={7} />}
 
         <CameraController rooms={rooms} />
 
-        <Environment preset="night" background={false} />
+        <Environment preset="city" background={false} />
       </Suspense>
     </Canvas>
   );

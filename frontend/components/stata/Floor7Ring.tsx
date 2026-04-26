@@ -16,8 +16,8 @@ export function Floor7Ring() {
   });
 
   return (
-    <mesh ref={ref} position={[-0.3, 7, 0]} rotation={[0, 0, 0]}>
-      <ringGeometry args={[3.8, 4.2, 48]} />
+    <mesh ref={ref} position={[-0.3, 4.6, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <ringGeometry args={[3.0, 3.3, 64]} />
       <meshBasicMaterial color="#ffd28a" transparent opacity={0.5} side={THREE.DoubleSide} toneMapped={false} />
     </mesh>
   );
