@@ -1,5 +1,6 @@
 import { Scene } from "@/components/stata/Scene";
 import { FloorPlan2D } from "@/components/floor/FloorPlan2D";
+import { LayerToggles } from "@/components/floor/LayerToggles";
 import { ChatPanel } from "@/components/chat/ChatPanel";
 import { Dossier } from "@/components/dossier/Dossier";
 import { TopBar } from "@/components/chrome/TopBar";
@@ -25,6 +26,7 @@ export default async function DeepLinkPage({ params }: { params: Promise<{ n: st
     <main className="relative w-screen h-screen overflow-hidden bg-[var(--ink)]">
       <Scene />
       <FloorPlan2D groups={groups} insights={insights} />
+      <LayerToggles />
       <TopBar />
       <MetaLabel />
       <ChatPanel />

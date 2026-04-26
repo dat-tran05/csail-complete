@@ -3,7 +3,7 @@ import { useMemo, useRef, useState, useEffect } from "react";
 import type { Group } from "@shared/schema/kg";
 import type { FloorInsights, FloorRoomInsight } from "@shared/schema/floor";
 import { useUI } from "@/lib/store";
-import { DEFAULT_GROUP_COLORS, colorForSlug } from "@/lib/colors";
+import { DEFAULT_GROUP_COLORS, colorForSlug, hexToRgba } from "@/lib/colors";
 import {
   FLOOR_7_ROOMS,
   STATA_OUTLINE,
@@ -25,6 +25,9 @@ export function FloorPlan2D({ groups, insights }: Props) {
   const hoveredId = useUI((s) => s.hoveredRoomId);
   const selectRoom = useUI((s) => s.selectRoom);
   const hoverRoom = useUI((s) => s.hoverRoom);
+  const activeLayers = useUI((s) => s.activeLayers);
+  const showHeatmap = activeLayers.has("heatmap");
+  const showNews = activeLayers.has("news");
 
   // Build per-room insight lookup.
   const insightByRoom = useMemo(() => {
@@ -71,6 +74,12 @@ export function FloorPlan2D({ groups, insights }: Props) {
     });
     return m;
   }, [groups, insights]);
+
+  // Max recent paper count across rooms — used for heatmap normalization.
+  const maxPaperCount = useMemo(() => {
+    if (!insights) return 0;
+    return insights.rooms.reduce((m, r) => Math.max(m, r.recentPaperCount), 0);
+  }, [insights]);
 
   const hoveredRoom = hoveredId ? FLOOR_7_ROOMS.find((r) => r.id === hoveredId) ?? null : null;
   const hoveredInsight = hoveredId ? insightByRoom.get(hoveredId) ?? null : null;
@@ -204,6 +213,9 @@ export function FloorPlan2D({ groups, insights }: Props) {
           />
         ))}
 
+        {showHeatmap && <HeatmapLayer rooms={FLOOR_7_ROOMS} insightByRoom={insightByRoom} maxPaperCount={maxPaperCount} />}
+        {showNews && <NewsPulseLayer rooms={FLOOR_7_ROOMS} insightByRoom={insightByRoom} />}
+
         <NorthArrow />
         <ScaleBar />
 
@@ -328,6 +340,55 @@ function RoomCell({ room, insight, color, isSelected, isHovered, onHover, onSele
           {subLabel}
         </text>
       ) : null}
+    </g>
+  );
+}
+
+interface LayerProps {
+  rooms: RoomDef[];
+  insightByRoom: Map<string, FloorRoomInsight>;
+}
+
+function HeatmapLayer({ rooms, insightByRoom, maxPaperCount }: LayerProps & { maxPaperCount: number }) {
+  if (maxPaperCount === 0) return null;
+  return (
+    <g pointerEvents="none">
+      {rooms.map((room) => {
+        const ins = insightByRoom.get(room.id);
+        const count = ins?.recentPaperCount ?? 0;
+        if (count === 0) return null;
+        const norm = Math.min(1, count / maxPaperCount);
+        // log-curve: even modest counts get visible glow, biggest rooms saturate
+        const intensity = 0.18 + 0.55 * Math.sqrt(norm);
+        return (
+          <polygon
+            key={room.id}
+            points={pointsAttr(room.polygon)}
+            fill={hexToRgba("#e26b4a", intensity)}
+            style={{ mixBlendMode: "screen" as const }}
+          />
+        );
+      })}
+    </g>
+  );
+}
+
+function NewsPulseLayer({ rooms, insightByRoom }: LayerProps) {
+  return (
+    <g pointerEvents="none">
+      {rooms.map((room) => {
+        const ins = insightByRoom.get(room.id);
+        if (!ins || ins.recentNewsCount === 0) return null;
+        const [cx, cy] = centroid(room.polygon);
+        const offsetX = cx + 2.5;
+        const offsetY = cy - 2.5;
+        return (
+          <g key={`news-${room.id}`} transform={`translate(${offsetX} ${offsetY})`}>
+            <circle r={1.6} fill="none" stroke="var(--cinnabar, #e26b4a)" strokeWidth={0.12} className="news-pulse-ring" />
+            <circle r={0.45} fill="var(--cinnabar, #e26b4a)" />
+          </g>
+        );
+      })}
     </g>
   );
 }
