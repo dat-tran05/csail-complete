@@ -4,7 +4,7 @@ import { useUI } from "@/lib/store";
 export function EnterFloor7Trigger() {
   const view = useUI((s) => s.view);
   const enterFloor = useUI((s) => s.enterFloor);
-  if (view !== "exterior") return null;
+  if (view !== "building") return null;
   return (
     <button
       onClick={() => enterFloor(7)}

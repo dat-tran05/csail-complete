@@ -4,21 +4,48 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useUI } from "@/lib/store";
 
+/**
+ * "Section cut" — a thin horizontal disk + bracket lines that visually mark
+ * the height of Floor 7. Replaces the prior pulsing ring with a calmer
+ * architectural section indicator.
+ */
 export function Floor7Ring() {
-  const ref = useRef<THREE.Mesh>(null);
+  const groupRef = useRef<THREE.Group>(null);
+  const ringRef = useRef<THREE.Mesh>(null);
   const view = useUI((s) => s.view);
 
   useFrame((state) => {
-    if (!ref.current) return;
+    if (!groupRef.current) return;
+    const visible = view === "building";
     const t = state.clock.elapsedTime;
-    const mat = ref.current.material as THREE.MeshBasicMaterial;
-    mat.opacity = view === "exterior" ? 0.4 + Math.sin(t * 1.5) * 0.25 : 0;
+    groupRef.current.visible = visible;
+    if (ringRef.current) {
+      const mat = ringRef.current.material as THREE.MeshBasicMaterial;
+      mat.opacity = visible ? 0.36 + Math.sin(t * 0.9) * 0.10 : 0;
+    }
   });
 
   return (
-    <mesh ref={ref} position={[-0.3, 4.6, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-      <ringGeometry args={[3.0, 3.3, 64]} />
-      <meshBasicMaterial color="#ffd28a" transparent opacity={0.5} side={THREE.DoubleSide} toneMapped={false} />
-    </mesh>
+    <group ref={groupRef} position={[-0.3, 4.6, 0]}>
+      {/* Slice plane (very thin disk) */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[3.05, 3.15, 96]} />
+        <meshBasicMaterial color="#ffd28a" transparent opacity={0.5} side={THREE.DoubleSide} toneMapped={false} />
+      </mesh>
+      {/* Halo glow */}
+      <mesh ref={ringRef} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[3.18, 3.7, 96]} />
+        <meshBasicMaterial color="#ffd28a" transparent opacity={0.15} side={THREE.DoubleSide} toneMapped={false} />
+      </mesh>
+      {/* Drop lines (4 cardinal section markers) */}
+      {[
+        [3.4, 0, 0], [-3.4, 0, 0], [0, 0, 3.4], [0, 0, -3.4],
+      ].map((p, i) => (
+        <mesh key={i} position={p as [number, number, number]}>
+          <boxGeometry args={[0.06, 0.6, 0.06]} />
+          <meshBasicMaterial color="#ffd28a" transparent opacity={0.8} toneMapped={false} />
+        </mesh>
+      ))}
+    </group>
   );
 }

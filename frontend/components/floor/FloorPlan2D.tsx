@@ -181,14 +181,11 @@ export function FloorPlan2D({ groups }: Props) {
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
     >
-      <button
-        onClick={exitFloor}
-        className="absolute top-3 left-1/2 -translate-x-1/2 z-30 px-3 py-1.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-[12px] text-white/80 backdrop-blur-sm font-mono"
-      >
-        ← back to building
-      </button>
-      <div className="absolute bottom-20 left-3 text-[10px] text-white/35 font-mono leading-relaxed">
-        drag · pan<br/>scroll · zoom<br/>click · select room
+      {/* Mini elevator floor selector */}
+      <FloorElevator />
+
+      <div className="absolute bottom-6 left-6 text-[9px] text-[var(--graphite-2)] font-mono smallcaps leading-relaxed tabular">
+        drag · pan<br/>scroll · zoom<br/>click · select room<br/>esc · close
       </div>
 
       <svg
@@ -203,16 +200,39 @@ export function FloorPlan2D({ groups }: Props) {
         }}
       >
         <defs>
-          <pattern id="grid" width="2" height="2" patternUnits="userSpaceOnUse">
-            <path d="M 2 0 L 0 0 0 2" fill="none" stroke="#ffffff" strokeWidth="0.04" opacity="0.04" />
+          {/* 1m fine grid */}
+          <pattern id="gridFine" width="1" height="1" patternUnits="userSpaceOnUse">
+            <path d="M 1 0 L 0 0 0 1" fill="none" stroke="#ffffff" strokeWidth="0.025" opacity="0.05" />
           </pattern>
-          <filter id="softGlow">
-            <feGaussianBlur stdDeviation="0.5" />
+          {/* 5m thick grid */}
+          <pattern id="grid5m" width="5" height="5" patternUnits="userSpaceOnUse">
+            <path d="M 5 0 L 0 0 0 5" fill="none" stroke="#ffffff" strokeWidth="0.05" opacity="0.10" />
+          </pattern>
+          {/* Architectural hatching for occupied rooms (poché) */}
+          <pattern id="poche" width="1.4" height="1.4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <line x1="0" y1="0" x2="0" y2="1.4" stroke="rgba(255,255,255,0.25)" strokeWidth="0.06" />
+          </pattern>
+          <filter id="dropShadow" x="-10%" y="-10%" width="120%" height="120%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="0.7" />
+            <feOffset dx="0" dy="0.6" result="off" />
+            <feComponentTransfer><feFuncA type="linear" slope="0.5" /></feComponentTransfer>
+            <feMerge>
+              <feMergeNode />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
           </filter>
         </defs>
 
-        <rect x="0" y="0" width="100" height="100" fill="url(#grid)" />
+        <rect x="0" y="0" width="100" height="100" fill="url(#gridFine)" />
+        <rect x="0" y="0" width="100" height="100" fill="url(#grid5m)" />
 
+        {/* Outer building shadow + outline */}
+        <polygon
+          points={pointsAttr(STATA_OUTLINE)}
+          fill="#0a0e1a"
+          opacity="0.5"
+          transform="translate(0.3, 0.4)"
+        />
         <polygon
           points={pointsAttr(STATA_OUTLINE)}
           fill="#10162a"
@@ -220,15 +240,24 @@ export function FloorPlan2D({ groups }: Props) {
           strokeWidth="0.45"
           strokeLinejoin="round"
         />
+        {/* Inner building hairline */}
+        <polygon
+          points={pointsAttr(STATA_OUTLINE)}
+          fill="none"
+          stroke="rgba(244,237,224,0.12)"
+          strokeWidth="0.08"
+          strokeLinejoin="round"
+          transform="scale(0.99) translate(0.5, 0.5)"
+        />
 
         {ROOMS.map((room) => {
           const groupColor = colorByRoom.get(room.id);
           const isSelected = selectedId === room.id;
           const isHovered = hoveredId === room.id;
           const baseFill = groupColor ?? TYPE_FILL[room.type ?? "office"];
-          const fillOpacity = groupColor ? (isSelected ? 0.95 : isHovered ? 0.78 : 0.62) : (isSelected ? 0.85 : isHovered ? 0.55 : 1);
+          const fillOpacity = groupColor ? (isSelected ? 0.92 : isHovered ? 0.74 : 0.55) : (isSelected ? 0.85 : isHovered ? 0.55 : 1);
           const stroke = isSelected ? "#ffffff" : groupColor ? groupColor : "#3d4a66";
-          const strokeWidth = isSelected ? 0.45 : isHovered ? 0.32 : 0.18;
+          const strokeWidth = isSelected ? 0.4 : isHovered ? 0.28 : 0.16;
           const [cx, cy] = centroid(room.polygon);
           const interactive = !!groupColor;
 
@@ -248,26 +277,52 @@ export function FloorPlan2D({ groups }: Props) {
                 strokeWidth={strokeWidth}
                 strokeLinejoin="round"
               />
+              {/* Architectural poché hatching for occupied rooms */}
+              {interactive && (isHovered || isSelected) && (
+                <polygon
+                  points={pointsAttr(room.polygon)}
+                  fill="url(#poche)"
+                  pointerEvents="none"
+                  opacity={isSelected ? 0.55 : 0.3}
+                />
+              )}
+              {interactive && !isHovered && !isSelected && (
+                <polygon
+                  points={pointsAttr(room.polygon)}
+                  fill="url(#poche)"
+                  pointerEvents="none"
+                  opacity={0.15}
+                />
+              )}
               <text
                 x={cx}
                 y={cy + 0.4}
                 textAnchor="middle"
                 dominantBaseline="middle"
-                fontSize={interactive ? 1.6 : 1.1}
-                fontWeight={interactive ? 700 : 500}
-                fill={interactive ? "#ffffff" : "#a8b3c8"}
-                style={{ pointerEvents: "none", fontFamily: "ui-monospace, Menlo, monospace" }}
+                fontSize={interactive ? 1.7 : 1.15}
+                fontWeight={interactive ? 600 : 400}
+                fill={interactive ? "#ffffff" : "rgba(244,237,224,0.55)"}
+                style={{
+                  pointerEvents: "none",
+                  fontFamily: "var(--font-plex-mono), ui-monospace, monospace",
+                  fontVariantNumeric: "tabular-nums",
+                }}
               >
                 {room.number}
               </text>
               {room.label && interactive && (
                 <text
                   x={cx}
-                  y={cy + 2.6}
+                  y={cy + 2.7}
                   textAnchor="middle"
-                  fontSize="0.85"
-                  fill="rgba(255,255,255,0.7)"
-                  style={{ pointerEvents: "none", fontFamily: "ui-monospace, Menlo, monospace" }}
+                  fontSize="0.78"
+                  fill="rgba(255,255,255,0.65)"
+                  style={{
+                    pointerEvents: "none",
+                    fontFamily: "var(--font-plex-mono), monospace",
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                  }}
                 >
                   {room.label}
                 </text>
@@ -276,21 +331,94 @@ export function FloorPlan2D({ groups }: Props) {
           );
         })}
 
-        {/* north arrow */}
-        <g transform="translate(92, 14)">
-          <circle r="2.6" fill="rgba(20,28,46,0.85)" stroke="#5d7196" strokeWidth="0.18" />
-          <path d="M 0 -1.6 L 1 1.4 L 0 0.6 L -1 1.4 Z" fill="#cfd8e8" />
-          <text x="0" y="-3.4" textAnchor="middle" fontSize="1.1" fill="#a8b3c8" style={{ fontFamily: "ui-monospace, Menlo, monospace" }}>N</text>
+        {/* North arrow */}
+        <g transform="translate(92, 12)">
+          <circle r="2.8" fill="rgba(12,14,19,0.85)" stroke="rgba(244,237,224,0.32)" strokeWidth="0.12" />
+          <path d="M 0 -1.7 L 0.95 1.5 L 0 0.65 L -0.95 1.5 Z" fill="#f4ede0" />
+          <text x="0" y="-3.6" textAnchor="middle" fontSize="1.0" fill="rgba(244,237,224,0.65)"
+                style={{ fontFamily: "var(--font-fraunces), serif", fontStyle: "italic" }}>
+            N
+          </text>
         </g>
 
-        {/* scale bar (10 units ≈ 12 m at this approximation) */}
-        <g transform="translate(8, 90)">
-          <line x1="0" y1="0" x2="10" y2="0" stroke="#5d7196" strokeWidth="0.25" />
-          <line x1="0" y1="-0.6" x2="0" y2="0.6" stroke="#5d7196" strokeWidth="0.25" />
-          <line x1="10" y1="-0.6" x2="10" y2="0.6" stroke="#5d7196" strokeWidth="0.25" />
-          <text x="5" y="2" textAnchor="middle" fontSize="0.9" fill="#7a8aa6" style={{ fontFamily: "ui-monospace, Menlo, monospace" }}>≈ 12 m</text>
+        {/* Scale bar — divided architectural style */}
+        <g transform="translate(7, 92)">
+          <rect x="0" y="-0.4" width="2.5" height="0.8" fill="rgba(244,237,224,0.7)" stroke="rgba(244,237,224,0.7)" strokeWidth="0.05" />
+          <rect x="2.5" y="-0.4" width="2.5" height="0.8" fill="none" stroke="rgba(244,237,224,0.7)" strokeWidth="0.05" />
+          <rect x="5" y="-0.4" width="2.5" height="0.8" fill="rgba(244,237,224,0.7)" />
+          <rect x="7.5" y="-0.4" width="2.5" height="0.8" fill="none" stroke="rgba(244,237,224,0.7)" strokeWidth="0.05" />
+          <text x="0"  y="2.0" textAnchor="middle" fontSize="0.75" fill="rgba(244,237,224,0.65)"
+                style={{ fontFamily: "var(--font-plex-mono), monospace", fontVariantNumeric: "tabular-nums" }}>0</text>
+          <text x="5"  y="2.0" textAnchor="middle" fontSize="0.75" fill="rgba(244,237,224,0.65)"
+                style={{ fontFamily: "var(--font-plex-mono), monospace", fontVariantNumeric: "tabular-nums" }}>6m</text>
+          <text x="10" y="2.0" textAnchor="middle" fontSize="0.75" fill="rgba(244,237,224,0.65)"
+                style={{ fontFamily: "var(--font-plex-mono), monospace", fontVariantNumeric: "tabular-nums" }}>12m</text>
+          <text x="13" y="0.4" fontSize="0.7" fill="rgba(244,237,224,0.4)"
+                style={{ fontFamily: "var(--font-plex-mono), monospace", letterSpacing: "0.12em", textTransform: "uppercase" }}>
+            scale
+          </text>
+        </g>
+
+        {/* Drawing label, bottom right */}
+        <g transform="translate(78, 96)">
+          <text fontSize="0.85" fill="rgba(244,237,224,0.45)"
+                style={{ fontFamily: "var(--font-plex-mono), monospace", letterSpacing: "0.16em", textTransform: "uppercase" }}>
+            32-G7 · plan · 1:200 (approx)
+          </text>
         </g>
       </svg>
+    </div>
+  );
+}
+
+function FloorElevator() {
+  const view = useUI((s) => s.view);
+  const activeFloor = useUI((s) => s.activeFloor);
+  const enterFloor = useUI((s) => s.enterFloor);
+  const exitFloor = useUI((s) => s.exitFloor);
+  if (view !== "floor") return null;
+
+  const floors = [9, 8, 7, 6, 5, 4, 3, 2, 1];
+  return (
+    <div className="absolute left-6 top-1/2 -translate-y-1/2 z-30 flex flex-col items-stretch animate-fadeUp">
+      <button
+        onClick={exitFloor}
+        title="back to building"
+        className="font-mono text-[9px] smallcaps text-[var(--graphite-2)] hover:text-[var(--bone)] transition tabular pb-2 border-b border-[var(--rule)] mb-2"
+      >
+        ↑ building
+      </button>
+      <ul className="flex flex-col gap-px">
+        {floors.map((f) => {
+          const active = f === activeFloor;
+          const enabled = f === 7;
+          return (
+            <li key={f}>
+              <button
+                disabled={!enabled}
+                onClick={() => enterFloor(f)}
+                title={enabled ? `Floor ${f}` : "data not yet ingested"}
+                className={[
+                  "w-12 py-1 flex items-baseline justify-center gap-1 transition border-r-2",
+                  active
+                    ? "border-[var(--gold)] text-[var(--bone)]"
+                    : enabled
+                      ? "border-transparent text-[var(--graphite-2)] hover:text-[var(--bone)] hover:border-[var(--rule-strong)]"
+                      : "border-transparent text-[var(--graphite)] cursor-not-allowed",
+                ].join(" ")}
+              >
+                <span className="font-display tabular text-[18px] leading-none"
+                      style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 30" }}>
+                  {f}
+                </span>
+                {active && (
+                  <span className="font-mono text-[8px] smallcaps tabular text-[var(--gold)]">●</span>
+                )}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }

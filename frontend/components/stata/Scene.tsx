@@ -6,6 +6,7 @@ import { PCFShadowMap } from "three";
 import { StataExterior } from "./StataExterior";
 import { CameraController } from "./CameraController";
 import { Floor7Ring } from "./Floor7Ring";
+import { Starfield } from "./Starfield";
 import { useUI } from "@/lib/store";
 
 export function Scene() {
@@ -19,7 +20,7 @@ export function Scene() {
       style={{
         position: "absolute",
         inset: 0,
-        background: "linear-gradient(180deg,#060812 0%,#101a30 35%,#1a2548 70%,#0d121f 100%)",
+        background: "linear-gradient(180deg,#050609 0%,#0a1226 35%,#142146 65%,#0a0e1c 100%)",
         opacity: view === "floor" ? 0 : 1,
         transition: "opacity 220ms ease",
         pointerEvents: view === "floor" ? "none" : "auto",
@@ -32,8 +33,9 @@ export function Scene() {
         <directionalLight position={[-12, 14, -8]} intensity={0.5} color="#9ab0d8" />
         <pointLight position={[-8, 6, -4]} intensity={0.4} color="#a36ee2" />
 
-        <fog attach="fog" args={["#0d121f", 45, 120]} />
+        <fog attach="fog" args={["#0a0e1c", 50, 130]} />
 
+        <Starfield />
         <StataExterior />
         <Floor7Ring />
 

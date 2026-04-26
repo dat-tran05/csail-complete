@@ -1,11 +1,9 @@
 import { Scene } from "@/components/stata/Scene";
 import { FloorPlan2D } from "@/components/floor/FloorPlan2D";
-import { FloorCard } from "@/components/cards/FloorCard";
-import { RoomCard } from "@/components/cards/RoomCard";
 import { ChatPanel } from "@/components/chat/ChatPanel";
-import { GraphPlaceholderModal } from "@/components/graph/GraphPlaceholderModal";
+import { Dossier } from "@/components/dossier/Dossier";
+import { TopBar } from "@/components/chrome/TopBar";
 import { MetaLabel } from "@/components/ui/MetaLabel";
-import { GraphToggle } from "@/components/ui/GraphToggle";
 import { DeepLinkInitializer } from "@/components/ui/DeepLinkInitializer";
 import { loadGroups } from "@/lib/data";
 
@@ -16,15 +14,13 @@ export default async function DeepLinkPage({ params }: { params: Promise<{ n: st
   const groups = await loadGroups();
 
   return (
-    <main className="relative w-screen h-screen overflow-hidden bg-black">
+    <main className="relative w-screen h-screen overflow-hidden bg-[var(--ink)]">
       <Scene />
       <FloorPlan2D groups={groups} />
+      <TopBar />
       <MetaLabel />
-      <GraphToggle />
-      <FloorCard />
-      <RoomCard />
       <ChatPanel />
-      <GraphPlaceholderModal />
+      <Dossier />
       <DeepLinkInitializer floor={floor} roomId={roomId} />
     </main>
   );
