@@ -28,6 +28,7 @@ export function FloorPlan2D({ groups, insights }: Props) {
   const activeLayers = useUI((s) => s.activeLayers);
   const showHeatmap = activeLayers.has("heatmap");
   const showNews = activeLayers.has("news");
+  const showArcs = activeLayers.has("arcs");
 
   // Build per-room insight lookup.
   const insightByRoom = useMemo(() => {
@@ -215,6 +216,7 @@ export function FloorPlan2D({ groups, insights }: Props) {
 
         {showHeatmap && <HeatmapLayer rooms={FLOOR_7_ROOMS} insightByRoom={insightByRoom} maxPaperCount={maxPaperCount} />}
         {showNews && <NewsPulseLayer rooms={FLOOR_7_ROOMS} insightByRoom={insightByRoom} />}
+        {showArcs && insights && <CoauthorArcsLayer rooms={FLOOR_7_ROOMS} edges={insights.coauthorEdges} />}
 
         <NorthArrow />
         <ScaleBar />
@@ -366,6 +368,52 @@ function HeatmapLayer({ rooms, insightByRoom, maxPaperCount }: LayerProps & { ma
             points={pointsAttr(room.polygon)}
             fill={hexToRgba("#e26b4a", intensity)}
             style={{ mixBlendMode: "screen" as const }}
+          />
+        );
+      })}
+    </g>
+  );
+}
+
+function CoauthorArcsLayer({
+  rooms,
+  edges,
+}: {
+  rooms: RoomDef[];
+  edges: { fromRoomId: string; toRoomId: string; paperCount: number }[];
+}) {
+  const roomById = new Map<string, RoomDef>();
+  rooms.forEach((r) => roomById.set(r.id, r));
+  const maxCount = edges.reduce((m, e) => Math.max(m, e.paperCount), 1);
+
+  return (
+    <g pointerEvents="none">
+      {edges.map((edge, i) => {
+        const a = roomById.get(edge.fromRoomId);
+        const b = roomById.get(edge.toRoomId);
+        if (!a || !b) return null; // skip arcs whose endpoints aren't on the plan
+        const [ax, ay] = centroid(a.polygon);
+        const [bx, by] = centroid(b.polygon);
+        const mx = (ax + bx) / 2;
+        const my = (ay + by) / 2;
+        const dx = bx - ax;
+        const dy = by - ay;
+        const len = Math.sqrt(dx * dx + dy * dy) || 1;
+        // perpendicular control point — push the arc up off the line
+        const px = mx + (-dy / len) * len * 0.28;
+        const py = my + (dx / len) * len * 0.28;
+        const norm = Math.min(1, edge.paperCount / maxCount);
+        const opacity = 0.18 + 0.55 * norm;
+        const width = 0.06 + 0.28 * norm;
+        return (
+          <path
+            key={`arc-${i}`}
+            d={`M ${ax} ${ay} Q ${px} ${py} ${bx} ${by}`}
+            stroke="var(--gold, #d4b25f)"
+            strokeOpacity={opacity}
+            strokeWidth={width}
+            strokeLinecap="round"
+            fill="none"
           />
         );
       })}
