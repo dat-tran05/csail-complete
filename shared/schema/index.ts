@@ -8,3 +8,10 @@ export * from "./project";
 export * from "./paper";
 export * from "./news";
 export type { Polygon, RoomType, Room } from "./room";
+export type {
+  FloorRoomInsight,
+  FloorCoauthorEdge,
+  FloorAreaSummary,
+  FloorGroupSummary,
+  FloorInsights,
+} from "./floor";
