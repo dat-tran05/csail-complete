@@ -2,15 +2,15 @@
 import { useUI } from "@/lib/store";
 
 const FLOORS = [
-  { n: 9, label: "9th",  group: "—",                 stat: "" },
-  { n: 8, label: "8th",  group: "—",                 stat: "" },
-  { n: 7, label: "7th",  group: "Gates Tower",       stat: "1,493 indexed · 70 groups" },
-  { n: 6, label: "6th",  group: "—",                 stat: "" },
-  { n: 5, label: "5th",  group: "—",                 stat: "" },
-  { n: 4, label: "4th",  group: "—",                 stat: "" },
-  { n: 3, label: "3rd",  group: "—",                 stat: "" },
-  { n: 2, label: "2nd",  group: "—",                 stat: "" },
-  { n: 1, label: "1st",  group: "lobby",             stat: "" },
+  { n: 9, label: "9th",  group: "Roof · Penthouse",   stat: "" },
+  { n: 8, label: "8th",  group: "AI · NLP",           stat: "" },
+  { n: 7, label: "7th",  group: "Gates Tower",        stat: "1,493 indexed · 70 groups" },
+  { n: 6, label: "6th",  group: "Vision · Robotics",  stat: "" },
+  { n: 5, label: "5th",  group: "Systems · Networks", stat: "" },
+  { n: 4, label: "4th",  group: "Theory",             stat: "" },
+  { n: 3, label: "3rd",  group: "PL · SE",            stat: "" },
+  { n: 2, label: "2nd",  group: "Student Street",     stat: "" },
+  { n: 1, label: "1st",  group: "Lobby",              stat: "" },
 ];
 
 export function FloorStrip() {
@@ -54,7 +54,7 @@ export function FloorStrip() {
         })}
       </ul>
       <div className="font-mono text-[9px] smallcaps text-[var(--graphite-2)] mt-3 text-right tabular">
-        Floor 7 only · for now
+        Live · Floor 7  /  expanding
       </div>
     </div>
   );

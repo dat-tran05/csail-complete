@@ -4,6 +4,8 @@ const PROMPTS = [
   "Who works on programming languages on Floor 7?",
   "Recent papers from the HCI Lab",
   "Where is Daniel Jackson's office?",
+  "What groups share the Gates Tower?",
+  "Show me the HCI co-author network",
 ];
 
 export function QuickPrompts({ onPick }: { onPick: (msg: string) => void }) {
