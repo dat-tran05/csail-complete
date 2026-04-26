@@ -13,6 +13,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const { id } = await params;
   const decoded = decodeURIComponent(id);
   const bare = decoded.replace(/^room:/, "");
+  const yearCutoff = new Date().getFullYear() - 1;
 
   try {
     const data = await withRead(async (s) => {
@@ -21,14 +22,17 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
          WHERE rm.id = $id OR rm.id = $bare OR rm.id = ('room:' + $bare)
          OPTIONAL MATCH (rm)-[:BELONGS_TO]->(g:Group)
          OPTIONAL MATCH (p:Person)-[:LOCATED_IN]->(rm)
-         OPTIONAL MATCH (rm)<-[:BELONGS_TO]-(rm2:Room)
-         OPTIONAL MATCH (rm)-[:AUTHORED|BELONGS_TO]-(pp:Paper)
-            WHERE pp.year >= toInteger(date().year - 1)
+         OPTIONAL MATCH (p)-[:AUTHORED]->(pp:Paper)
+            WHERE pp.year >= $yearCutoff
+         OPTIONAL MATCH (p)-[:MENTIONED_IN]->(news:NewsItem)
+         OPTIONAL MATCH (p)-[:WORKS_ON]->(proj:Project)
          RETURN rm,
                 collect(DISTINCT g) AS groups,
                 collect(DISTINCT p) AS members,
-                count(DISTINCT pp) AS papersThisMonth`,
-        { id: decoded, bare }
+                collect(DISTINCT pp) AS papers,
+                collect(DISTINCT news) AS news,
+                collect(DISTINCT proj) AS projects`,
+        { id: decoded, bare, yearCutoff }
       );
       if (r.records.length === 0) return null;
       const rec = r.records[0]!;
@@ -59,16 +63,52 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
           photoUrl: p.properties.photoUrl as string | undefined,
         }));
 
+      type Node = { properties: Record<string, unknown> };
+      const recentPapers = (rec.get("papers") as Node[])
+        .filter((n) => n && n.properties)
+        .map((n) => ({
+          id: n.properties.id as string,
+          title: n.properties.title as string,
+          year: toInt(n.properties.year),
+          venue: n.properties.venue as string | undefined,
+        }))
+        .sort((a, b) => b.year - a.year)
+        .slice(0, 5);
+
+      const recentNews = (rec.get("news") as Node[])
+        .filter((n) => n && n.properties)
+        .map((n) => ({
+          id: (n.properties.id as string) ?? (n.properties.slug as string),
+          slug: n.properties.slug as string | undefined,
+          title: n.properties.title as string,
+          publishedAt: (n.properties.publishedAt as string) ?? "",
+          source: n.properties.source as string | undefined,
+        }))
+        .sort((a, b) => (b.publishedAt ?? "").localeCompare(a.publishedAt ?? ""))
+        .slice(0, 3);
+
+      const projects = (rec.get("projects") as Node[])
+        .filter((n) => n && n.properties)
+        .map((n) => ({
+          id: n.properties.id as string,
+          slug: n.properties.slug as string | undefined,
+          title: (n.properties.title as string) ?? (n.properties.name as string),
+          teaser: n.properties.teaser as string | undefined,
+        }))
+        .slice(0, 5);
+
       return {
         room,
         groups,
         members,
-        activity: { papersThisMonth: toInt(rec.get("papersThisMonth")), collaborations: members.length },
+        activity: { papersThisMonth: recentPapers.length, collaborations: members.length },
+        recentPapers,
+        recentNews,
+        projects,
       };
     });
 
     if (!data) {
-      // Fall back to the local sample/json file for floors that aren't in Neo4j
       return NextResponse.json({ error: "room not found" }, { status: 404 });
     }
     return NextResponse.json(data);

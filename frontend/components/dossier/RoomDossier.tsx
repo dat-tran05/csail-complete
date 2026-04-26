@@ -8,6 +8,9 @@ interface RoomDetail {
   groups: { id: string; name: string; shortName?: string; color?: string; url?: string }[];
   members: { id: string; name: string; homepage?: string; photoUrl?: string; title?: string }[];
   activity: { papersThisMonth: number; collaborations: number };
+  recentPapers?: { id: string; title: string; year: number; venue?: string }[];
+  recentNews?: { id: string; slug?: string; title: string; publishedAt: string; source?: string }[];
+  projects?: { id: string; slug?: string; title: string; teaser?: string }[];
 }
 
 export function RoomDossier({ id }: { id: string }) {
@@ -100,6 +103,81 @@ export function RoomDossier({ id }: { id: string }) {
           <Stat n={data.activity.collaborations} label="collaborations" />
         </div>
       </DossierSection>
+
+      {data.recentPapers && data.recentPapers.length > 0 && (
+        <DossierSection label="Recent papers">
+          <ul className="space-y-1.5">
+            {data.recentPapers.map((p) => (
+              <li key={p.id}>
+                <button
+                  onClick={() => openDossier({ kind: "paper", id: p.id })}
+                  className="w-full text-left group"
+                >
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-mono text-[9px] tabular text-[var(--graphite-2)] shrink-0">{p.year}</span>
+                    <span className="font-body text-[12px] text-[var(--bone)] group-hover:text-[var(--gold)] transition leading-snug line-clamp-2">
+                      {p.title}
+                    </span>
+                  </div>
+                  {p.venue && (
+                    <div className="ml-7 font-mono text-[9px] smallcaps text-[var(--graphite-2)] truncate">
+                      {p.venue}
+                    </div>
+                  )}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </DossierSection>
+      )}
+
+      {data.recentNews && data.recentNews.length > 0 && (
+        <DossierSection label="In the news">
+          <ul className="space-y-1.5">
+            {data.recentNews.map((n) => (
+              <li key={n.id}>
+                <button
+                  onClick={() => openDossier({ kind: "news", id: n.slug ?? n.id })}
+                  className="w-full text-left group"
+                >
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-mono text-[9px] tabular text-[var(--graphite-2)] shrink-0">
+                      {n.publishedAt ? n.publishedAt.slice(0, 7) : ""}
+                    </span>
+                    <span className="font-body text-[12px] text-[var(--bone)] group-hover:text-[var(--gold)] transition leading-snug line-clamp-2">
+                      {n.title}
+                    </span>
+                  </div>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </DossierSection>
+      )}
+
+      {data.projects && data.projects.length > 0 && (
+        <DossierSection label="Active projects">
+          <ul className="space-y-1.5">
+            {data.projects.map((p) => (
+              <li key={p.id}>
+                <button
+                  onClick={() => openDossier({ kind: "project", id: p.slug ?? p.id })}
+                  className="w-full text-left group"
+                >
+                  <div className="font-body text-[12px] text-[var(--bone)] group-hover:text-[var(--gold)] transition leading-snug">
+                    {p.title}
+                  </div>
+                  {p.teaser && (
+                    <div className="font-mono text-[10px] text-[var(--graphite-2)] line-clamp-1 mt-0.5">
+                      {p.teaser}
+                    </div>
+                  )}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </DossierSection>
+      )}
 
       <DossierFootActions kind="room" id={id} />
     </div>
