@@ -205,6 +205,14 @@ function RoomCell({ room, insight, color, isSelected, isHovered, onHover, onSele
   const strokeWidth = isSelected ? 0.4 : isHovered ? 0.28 : 0.16;
   const [cx, cy] = centroid(room.polygon);
 
+  // Label resolution hierarchy:
+  // 1. namedSpace → big serif uppercase (Gates Tower Atrium)
+  // 2. curated room.label (HCI Lab common, PL office, etc.)
+  // 3. PI surname from insights (DELIMITROU, JACKSON)
+  // 4. else → none
+  const isNamedSpace = !!room.namedSpace;
+  const subLabel = room.namedSpace ?? room.label ?? insight?.piName ?? null;
+
   return (
     <g
       style={{ cursor: interactive ? "pointer" : "default" }}
@@ -236,29 +244,48 @@ function RoomCell({ room, insight, color, isSelected, isHovered, onHover, onSele
           opacity={0.15}
         />
       )}
-      <text
-        x={cx}
-        y={cy + 0.4}
-        textAnchor="middle"
-        dominantBaseline="middle"
-        fontSize={interactive ? 1.7 : 1.15}
-        fontWeight={interactive ? 600 : 400}
-        fill={interactive ? "#ffffff" : "rgba(244,237,224,0.55)"}
-        style={{
-          pointerEvents: "none",
-          fontFamily: "var(--font-plex-mono), ui-monospace, monospace",
-          fontVariantNumeric: "tabular-nums",
-        }}
-      >
-        {room.number}
-      </text>
-      {room.label && interactive && (
+      {!isNamedSpace && (
         <text
           x={cx}
-          y={cy + 2.7}
+          y={cy + (subLabel ? -0.6 : 0.4)}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fontSize={interactive ? 1.7 : 1.15}
+          fontWeight={interactive ? 600 : 400}
+          fill={interactive ? "#ffffff" : "rgba(244,237,224,0.55)"}
+          style={{
+            pointerEvents: "none",
+            fontFamily: "var(--font-plex-mono), ui-monospace, monospace",
+            fontVariantNumeric: "tabular-nums",
+          }}
+        >
+          {room.number}
+        </text>
+      )}
+      {isNamedSpace ? (
+        <text
+          x={cx}
+          y={cy + 0.4}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fontSize="1.6"
+          fill="rgba(244,237,224,0.7)"
+          style={{
+            pointerEvents: "none",
+            fontFamily: "var(--font-fraunces), serif",
+            fontStyle: "italic",
+            letterSpacing: "0.02em",
+          }}
+        >
+          {room.namedSpace}
+        </text>
+      ) : subLabel ? (
+        <text
+          x={cx}
+          y={cy + 1.7}
           textAnchor="middle"
           fontSize="0.78"
-          fill="rgba(255,255,255,0.65)"
+          fill="rgba(255,255,255,0.7)"
           style={{
             pointerEvents: "none",
             fontFamily: "var(--font-plex-mono), monospace",
@@ -266,9 +293,9 @@ function RoomCell({ room, insight, color, isSelected, isHovered, onHover, onSele
             textTransform: "uppercase",
           }}
         >
-          {room.label}
+          {subLabel}
         </text>
-      )}
+      ) : null}
     </g>
   );
 }

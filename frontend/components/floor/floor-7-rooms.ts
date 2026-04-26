@@ -39,8 +39,8 @@ export const FLOOR_7_ROOMS: RoomDef[] = [
   { id: "32-G726", number: "726", polygon: [[8,56],[20,56],[20,68],[10,70]], type: "office" },
   { id: "32-G724", number: "724", polygon: [[10,70],[20,68],[22,80],[14,82]], type: "office" },
 
-  // Central spine — main corridor
-  { id: "32-G7-corridor", number: "G7", polygon: [[20,42],[80,42],[82,50],[20,50]], type: "corridor", label: "main corridor" },
+  // Central spine — Gates Tower atrium / main corridor
+  { id: "32-G7-corridor", number: "G7", polygon: [[20,42],[80,42],[82,50],[20,50]], type: "corridor", namedSpace: "Gates Tower Atrium" },
 
   // Big shared rooms north of corridor
   { id: "32-G735", number: "735", polygon: [[28,30],[44,28],[44,42],[28,42]], type: "lab", label: "open work area" },
