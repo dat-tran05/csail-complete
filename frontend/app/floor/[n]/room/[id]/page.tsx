@@ -1,6 +1,7 @@
 import { Scene } from "@/components/stata/Scene";
 import { FloorPlan2D } from "@/components/floor/FloorPlan2D";
 import { LayerToggles } from "@/components/floor/LayerToggles";
+import { FloorLegend } from "@/components/floor/FloorLegend";
 import { ChatPanel } from "@/components/chat/ChatPanel";
 import { Dossier } from "@/components/dossier/Dossier";
 import { TopBar } from "@/components/chrome/TopBar";
@@ -27,6 +28,7 @@ export default async function DeepLinkPage({ params }: { params: Promise<{ n: st
       <Scene />
       <FloorPlan2D groups={groups} insights={insights} />
       <LayerToggles />
+      <FloorLegend insights={insights} curatedGroups={groups} />
       <TopBar />
       <MetaLabel />
       <ChatPanel />

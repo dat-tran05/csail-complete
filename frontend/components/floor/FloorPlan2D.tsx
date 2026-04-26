@@ -29,6 +29,8 @@ export function FloorPlan2D({ groups, insights }: Props) {
   const showHeatmap = activeLayers.has("heatmap");
   const showNews = activeLayers.has("news");
   const showArcs = activeLayers.has("arcs");
+  const groupFilter = useUI((s) => s.groupFilter);
+  const areaFilter = useUI((s) => s.areaFilter);
 
   // Build per-room insight lookup.
   const insightByRoom = useMemo(() => {
@@ -81,6 +83,29 @@ export function FloorPlan2D({ groups, insights }: Props) {
     if (!insights) return 0;
     return insights.rooms.reduce((m, r) => Math.max(m, r.recentPaperCount), 0);
   }, [insights]);
+
+  // Compute the set of room IDs that match the current filter (group or area).
+  // null = no filter active. Curated group rooms are merged for groupFilter matches.
+  const matchedRoomIds: Set<string> | null = useMemo(() => {
+    if (!groupFilter && !areaFilter) return null;
+    const set = new Set<string>();
+    if (groupFilter) {
+      insights?.rooms.forEach((r) => {
+        if (r.groupSlugs.includes(groupFilter) || r.dominantGroupSlug === groupFilter) {
+          set.add(r.id);
+        }
+      });
+      // also pick up curated groups (HCI Lab, PL, Theory, Vision) by id match.
+      groups.forEach((g) => {
+        if (g.id === groupFilter) g.roomIds.forEach((rid) => set.add(rid));
+      });
+    } else if (areaFilter) {
+      insights?.rooms.forEach((r) => {
+        if (r.areaSlugs.includes(areaFilter)) set.add(r.id);
+      });
+    }
+    return set;
+  }, [groupFilter, areaFilter, insights, groups]);
 
   const hoveredRoom = hoveredId ? FLOOR_7_ROOMS.find((r) => r.id === hoveredId) ?? null : null;
   const hoveredInsight = hoveredId ? insightByRoom.get(hoveredId) ?? null : null;
@@ -201,18 +226,24 @@ export function FloorPlan2D({ groups, insights }: Props) {
           transform="scale(0.99) translate(0.5, 0.5)"
         />
 
-        {FLOOR_7_ROOMS.map((room) => (
-          <RoomCell
-            key={room.id}
-            room={room}
-            insight={insightByRoom.get(room.id) ?? null}
-            color={colorByRoom.get(room.id)}
-            isSelected={selectedId === room.id}
-            isHovered={hoveredId === room.id}
-            onHover={hoverRoom}
-            onSelect={selectRoom}
-          />
-        ))}
+        {FLOOR_7_ROOMS.map((room) => {
+          const dimmed = matchedRoomIds !== null && !matchedRoomIds.has(room.id);
+          const bloomed = matchedRoomIds !== null && matchedRoomIds.has(room.id);
+          return (
+            <RoomCell
+              key={room.id}
+              room={room}
+              insight={insightByRoom.get(room.id) ?? null}
+              color={colorByRoom.get(room.id)}
+              isSelected={selectedId === room.id}
+              isHovered={hoveredId === room.id}
+              dimmed={dimmed}
+              bloomed={bloomed}
+              onHover={hoverRoom}
+              onSelect={selectRoom}
+            />
+          );
+        })}
 
         {showHeatmap && <HeatmapLayer rooms={FLOOR_7_ROOMS} insightByRoom={insightByRoom} maxPaperCount={maxPaperCount} />}
         {showNews && <NewsPulseLayer rooms={FLOOR_7_ROOMS} insightByRoom={insightByRoom} />}
@@ -238,17 +269,24 @@ interface RoomCellProps {
   color: string | undefined;
   isSelected: boolean;
   isHovered: boolean;
+  dimmed: boolean;
+  bloomed: boolean;
   onHover: (id: string | null) => void;
   onSelect: (id: string) => void;
 }
 
-function RoomCell({ room, insight, color, isSelected, isHovered, onHover, onSelect }: RoomCellProps) {
+function RoomCell({ room, insight, color, isSelected, isHovered, dimmed, bloomed, onHover, onSelect }: RoomCellProps) {
   const occupants = insight?.occupantCount ?? 0;
   const interactive = !!color || occupants > 0;
-  const baseFill = color ?? TYPE_FILL[room.type ?? "office"];
-  const fillOpacity = color ? (isSelected ? 0.92 : isHovered ? 0.74 : 0.55) : (isSelected ? 0.85 : isHovered ? 0.55 : 1);
-  const stroke = isSelected ? "#ffffff" : color ?? "#3d4a66";
-  const strokeWidth = isSelected ? 0.4 : isHovered ? 0.28 : 0.16;
+  const effectiveColor = dimmed ? undefined : color;
+  const baseFill = effectiveColor ?? TYPE_FILL[room.type ?? "office"];
+  let fillOpacity = effectiveColor ? (isSelected ? 0.92 : isHovered ? 0.74 : 0.55) : (isSelected ? 0.85 : isHovered ? 0.55 : 1);
+  if (dimmed) fillOpacity *= 0.35;
+  if (bloomed && !isSelected && !isHovered) fillOpacity = Math.min(0.95, fillOpacity * 1.35);
+  const stroke = isSelected ? "#ffffff" : effectiveColor ?? "#3d4a66";
+  let strokeWidth = isSelected ? 0.4 : isHovered ? 0.28 : 0.16;
+  if (dimmed) strokeWidth *= 0.5;
+  if (bloomed && !isSelected) strokeWidth = Math.max(strokeWidth, 0.32);
   const [cx, cy] = centroid(room.polygon);
 
   // Label resolution hierarchy:
